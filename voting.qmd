@@ -1,0 +1,153 @@
+---
+title: "Voting"
+author: "Luis Estrada"
+format: html
+editor: visual
+---
+
+## Running Code
+
+Install Chunk
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(scico)
+library(DT)
+```
+
+Load Data
+
+```{r}
+un_votes <- read_csv("data/un_votes.csv")
+```
+
+Learn about the dataset
+
+```{r}
+nrow(un_votes) # number of rows
+```
+
+```{r}
+ncol(un_votes) # number of columns
+```
+
+```{r}
+dim(un_votes) # rows columns together (Roller Coaster)
+```
+
+```{r}
+colnames(un_votes)
+```
+
+```{r}
+length(colnames(un_votes))
+```
+
+Using Pipes
+
+```{r}
+colnames(un_votes) |> # take the vector colnames(students)
+  length() # return the length of this vector
+```
+
+```{r}
+un_votes |> # take the object students
+  colnames() |> # get column names vector
+  length() # return the length of this vector
+```
+
+Overview of the dataframe
+
+```{r}
+head(un_votes)
+```
+
+```{r}
+tail(un_votes, n = 10)
+```
+
+```{r}
+summary(un_votes)
+```
+
+```{r}
+glimpse(un_votes)
+```
+
+```{r}
+un_votes$issue |>
+  unique()
+```
+
+```{r}
+un_votes$issue |>
+  unique()
+```
+
+First Plots
+
+```{r}
+ggplot(data = un_votes, mapping = aes(x = percent_yes)) +
+  geom_histogram()
+```
+
+```{r}
+un_votes |> ggplot( mapping = aes(x = percent_yes)) +
+  geom_histogram()
+```
+
+UN General Assembly Vote Trends
+
+```{r}
+country_list <- c("United States", "China", "Mexico", "Turkey")
+```
+
+```{r}
+un_votes |> # take the dataset
+  filter(
+    country %in% country_list, # select rows for countries in from country_list
+    issue %in% c("Human rights") # select cases for human rights votes
+  ) |>
+  ggplot(mapping = aes(x = year, y = percent_yes, color = country)) +
+  geom_line() +
+  ylab("% of votes that are 'Yes'") +
+  scale_color_scico_d(palette = "berlin") + # adjust color
+  theme_minimal() + # change the appearance
+  theme(legend.position = "top") # change legend position
+```
+
+```{r}
+un_votes |> # take the dataset
+  filter(
+    country %in% c("Italy", "France"), # select the countries to work with
+    votes > 5 # only use records where there are more than 5 votes
+  ) |>
+  ggplot(mapping = aes(
+    x = year, # over horizontal axis
+    y = percent_yes, # over vertical axis
+    color = country
+  )) +
+  geom_point() + # add points
+  geom_smooth(method = "loess", se = FALSE) + # add trend line
+  facet_wrap(~issue) + # split by issue
+  labs(
+    title = "Share of 'Yes' votes in the UN General Assembly",
+    subtitle = "1946 to 2019",
+    y = "% Yes Votes",
+    x = "Year",
+    color = "Country"
+  ) +
+  scale_color_scico_d(palette = "berlin") + # adjust color
+  theme_minimal() + # change the appearance
+  theme(legend.position = "top") # change legend position
+```
+
+```{r}
+un_votes |>
+  arrange(country) |>
+  select(country) |>
+  distinct() |>
+  datatable()
+```
